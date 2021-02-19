@@ -20,12 +20,14 @@ package proxy
 
 import (
 	"context"
+	"fmt"
 	"reflect"
 	"strings"
 
 	"k8s.io/apimachinery/pkg/api/errors"
 	metainternalversion "k8s.io/apimachinery/pkg/apis/meta/internalversion"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/conversion"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
@@ -38,6 +40,15 @@ import (
 	apiserverutil "tkestack.io/tke/pkg/apiserver/util"
 	"tkestack.io/tke/pkg/platform/apiserver/filter"
 )
+
+var proxyConvert = conversion.NewConverter(conversion.DefaultNameFunc)
+
+func init() {
+	_ = proxyConvert.RegisterUntypedConversionFunc((*metainternalversion.ListOptions)(nil), (*v1.ListOptions)(nil), func(a, b interface{}, scope conversion.Scope) error {
+		return metainternalversion.Convert_internalversion_ListOptions_To_v1_ListOptions(a.(*metainternalversion.ListOptions), b.(*v1.ListOptions), scope)
+	})
+
+}
 
 // Store implements pkg/api/rest.StandardStorage.
 type Store struct {
@@ -92,6 +103,11 @@ func (s *Store) List(ctx context.Context, options *metainternalversion.ListOptio
 
 	fuzzyResourceName := filter.FuzzyResourceFrom(ctx)
 	options, fuzzyResourceName = apiserverutil.InterceptFuzzyResourceNameFromListOptions(options, fuzzyResourceName)
+	v1Options := &v1.ListOptions{}
+	err = proxyConvert.Convert(options, v1Options, conversion.DestFromSource, &conversion.Meta{})
+	if err != nil {
+		return nil, fmt.Errorf("convert failed: %v", err)
+	}
 
 	result := s.NewListFunc()
 	if err := client.
@@ -99,7 +115,7 @@ func (s *Store) List(ctx context.Context, options *metainternalversion.ListOptio
 		NamespaceIfScoped(requestInfo.Namespace, requestInfo.Namespace != "" && requestInfo.Resource != "namespaces").
 		Resource(requestInfo.Resource).
 		SubResource(requestInfo.Subresource).
-		SpecificallyVersionedParams(options, platform.ParameterCodec, v1.SchemeGroupVersion).
+		SpecificallyVersionedParams(v1Options, platform.ParameterCodec, v1.SchemeGroupVersion).
 		Do(ctx).
 		Into(result); err != nil {
 		return nil, err
@@ -168,11 +184,17 @@ func (s *Store) Watch(ctx context.Context, options *metainternalversion.ListOpti
 
 	options.Watch = true
 
+	v1Options := &v1.ListOptions{}
+	err = proxyConvert.Convert(options, v1Options, conversion.DestFromSource, &conversion.Meta{})
+	if err != nil {
+		return nil, fmt.Errorf("convert failed: %v", err)
+	}
+
 	return client.Get().
 		NamespaceIfScoped(requestInfo.Namespace, requestInfo.Namespace != "" && requestInfo.Resource != "namespaces").
 		Resource(requestInfo.Resource).
 		SubResource(requestInfo.Subresource).
-		SpecificallyVersionedParams(options, platform.ParameterCodec, v1.SchemeGroupVersion).
+		SpecificallyVersionedParams(v1Options, platform.ParameterCodec, v1.SchemeGroupVersion).
 		Watch(ctx)
 }
 
@@ -281,11 +303,17 @@ func (s *Store) DeleteCollection(ctx context.Context, options *v1.DeleteOptions,
 		return nil, err
 	}
 
+	v1ListOptions := &v1.ListOptions{}
+	err = proxyConvert.Convert(listOptions, v1ListOptions, conversion.DestFromSource, &conversion.Meta{})
+	if err != nil {
+		return nil, fmt.Errorf("convert failed: %v", err)
+	}
+
 	result := client.
 		Delete().
 		NamespaceIfScoped(requestInfo.Namespace, requestInfo.Namespace != "" && requestInfo.Resource != "namespaces").
 		Resource(requestInfo.Resource).
-		SpecificallyVersionedParams(listOptions, platform.ParameterCodec, v1.SchemeGroupVersion).
+		SpecificallyVersionedParams(v1ListOptions, platform.ParameterCodec, v1.SchemeGroupVersion).
 		Body(options).
 		Do(ctx)
 

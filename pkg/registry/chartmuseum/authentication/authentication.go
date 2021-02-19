@@ -21,7 +21,6 @@ package authentication
 import (
 	"net/http"
 
-	"k8s.io/apiserver/pkg/authentication/authenticator"
 	genericapirequest "k8s.io/apiserver/pkg/endpoints/request"
 	"tkestack.io/tke/pkg/apiserver/authentication/authenticator/apikey"
 	registryconfig "tkestack.io/tke/pkg/registry/apis/config"
@@ -60,7 +59,7 @@ func WithAuthentication(handler http.Handler, opts *Options) (http.Handler, erro
 type authentication struct {
 	handler        http.Handler
 	externalScheme string
-	authenticator  authenticator.Password
+	// authenticator  authenticator.Password
 }
 
 func (a *authentication) ServeHTTP(w http.ResponseWriter, req *http.Request) {
