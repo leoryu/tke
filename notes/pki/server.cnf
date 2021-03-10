@@ -1,0 +1,67 @@
+[ req ]
+default_bits       = 2048
+distinguished_name = req_distinguished_name
+req_extensions     = req_ext
+
+[ req_distinguished_name ]
+countryName                 = Country Name (2 letter code)
+countryName_default         = 
+stateOrProvinceName         = State or Province Name (full name)
+stateOrProvinceName_default = 
+localityName                = Locality Name (eg, city)
+localityName_default        = 
+organizationName            = Organization Name (eg, company)
+organizationName_default    = Tencent
+organizationalUnitName            = Organizational Unit Name (eg, section)
+organizationalUnitName_default    = 
+commonName                  = Common Name (e.g. server FQDN or YOUR name)
+commonName_max              = 64
+commonName_default          = TKE-SERVER
+
+[ req_ext ]
+basicConstraints = CA:FALSE
+extendedKeyUsage = clientAuth, serverAuth
+subjectKeyIdentifier = hash
+keyUsage = critical, digitalSignature, keyEncipherment
+subjectAltName = @alt_names
+
+[alt_names]
+IP.1    = 127.0.0.1
+IP.2    = 10.206.16.19
+DNS.1   = 119.45.225.229
+DNS.2   = registry.tke.com
+DNS.3   = *.registry.tke.com
+DNS.4   = localhost
+DNS.5   = tke-platform-api
+DNS.6   = tke-platform-api.tke.svc
+DNS.7   = platform-api
+DNS.8   = tke-business-api
+DNS.9   = tke-business-api.tke.svc
+DNS.10   = business-api
+DNS.11   = tke-notify-api
+DNS.12   = tke-notify-api.tke.svc
+DNS.13   = notify-api
+DNS.14   = tke-auth-api
+DNS.15   = tke-auth-api.tke.svc
+DNS.16   = auth-api
+DNS.17   = tke-gateway
+DNS.18   = tke-gateway.tke.svc
+DNS.19   = gateway
+DNS.20   = tke-monitor-api
+DNS.21   = tke-monitor-api.tke.svc
+DNS.22   = monitor-api
+DNS.23   = tke-registry-api
+DNS.24   = tke-registry-api.tke.svc
+DNS.25   = registry-api
+DNS.26   = tke-logagent-api
+DNS.27   = tke-logagent-api.tke.svc
+DNS.28   = logagent-api
+DNS.29   = tke-audit-api
+DNS.30   = tke-audit-api.tke.svc
+DNS.31   = audit-api
+DNS.32   = tke-application-api
+DNS.33   = tke-application-api.tke.svc
+DNS.34   = application-api
+DNS.35   = tke-mesh-api
+DNS.36   = tke-mesh-api.tke.svc
+DNS.37   = mesh-api

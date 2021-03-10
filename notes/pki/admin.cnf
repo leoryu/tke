@@ -1,0 +1,25 @@
+[ req ]
+default_bits       = 2048
+distinguished_name = req_distinguished_name
+req_extensions     = req_ext
+
+[ req_distinguished_name ]
+countryName                 = Country Name (2 letter code)
+countryName_default         = 
+stateOrProvinceName         = State or Province Name (full name)
+stateOrProvinceName_default = 
+localityName                = Locality Name (eg, city)
+localityName_default        = 
+organizationName            = Organization Name (eg, company)
+organizationName_default    = system:masters
+organizationalUnitName            = Organizational Unit Name (eg, section)
+organizationalUnitName_default    = 
+commonName                  = Common Name (e.g. server FQDN or YOUR name)
+commonName_max              = 64
+commonName_default          = admin
+
+[ req_ext ]
+basicConstraints = CA:FALSE
+extendedKeyUsage = clientAuth
+subjectKeyIdentifier = hash
+keyUsage = critical, digitalSignature, keyEncipherment
